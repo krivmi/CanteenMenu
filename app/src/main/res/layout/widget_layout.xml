@@ -1,0 +1,58 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#1F000000"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <!-- Left vertical layout with week number, today's menu, and tomorrow's menu -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <!-- Week number -->
+        <TextView
+            android:id="@+id/text_week_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="Week:"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp" />
+
+        <!-- Today's menu -->
+        <TextView
+            android:id="@+id/text_today_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="Today:"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp" />
+
+        <!-- Tomorrow's menu -->
+        <TextView
+            android:id="@+id/text_tomorrow_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="Tomorrow:"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <!-- Refresh button on the right -->
+    <!-- Refresh button on the right -->
+    <ImageButton
+        android:id="@+id/button_refresh"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center_vertical"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Refresh"
+        android:src="@drawable/ic_refresh"
+        app:tint="#FFFFFF" />
+</LinearLayout>
