@@ -6,6 +6,7 @@ import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.view.animation.Animation;
 import android.widget.RemoteViews;
 
 import java.io.IOException;
@@ -15,7 +16,10 @@ import java.util.concurrent.Executors;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
+import android.view.View;
+import android.view.animation.ScaleAnimation;
 
 public class MyWidgetProvider extends AppWidgetProvider {
 
@@ -58,6 +62,7 @@ public class MyWidgetProvider extends AppWidgetProvider {
             executor.execute(new FetchMenuTask(context));
             executor.shutdown();
         }
+
     }
 
     private static class FetchMenuTask implements Runnable {
@@ -80,38 +85,70 @@ public class MyWidgetProvider extends AppWidgetProvider {
 
             try {
                 Document doc = Jsoup.connect("https://www.siost.hiof.no/diners/weekly-menu").get();
-                String text = doc.text();
+                // Extract text with line breaks (similar to soup.get_text(separator="\n"))
+                StringBuilder textWithLineBreaks = new StringBuilder();
+                for (Element element : doc.select("*")) { // Traverse all elements
+                    if (!element.ownText().isEmpty()) { // If the element has its own text
+                        textWithLineBreaks.append(element.ownText()).append("\n");
+                    }
+                }
+
+                // Get the resulting text
+                String text = textWithLineBreaks.toString();
+
                 int startIndex = text.indexOf("Halden");
                 int endIndex = text.indexOf("Fredrikstad", startIndex);
 
-                if (startIndex != -1 && endIndex != -1) {
+                if (startIndex != -1 && endIndex != -1) { // the Halden menu was found
                     String extractedText = text.substring(startIndex, endIndex + "Fredrikstad".length());
-                    String[] lines = extractedText.split("\\n");
+                    startIndex = extractedText.indexOf("Monday");
+                    endIndex = extractedText.indexOf("Fredrikstad", startIndex);
 
-                    Calendar calendar = Calendar.getInstance();
-                    int todayIndex = calendar.get(Calendar.DAY_OF_WEEK) - Calendar.MONDAY;
-                    int tomorrowIndex = (todayIndex + 1) % 7;
+                    if (startIndex != -1 && endIndex != -1) {
+                        extractedText = extractedText.substring(startIndex, endIndex);
+                        String[] lines = extractedText.split("\\n");
+                        Log.d("MyWidgetProvider", "LinesLength: " + extractedText.length() +"Lines: " + extractedText);
 
-                    if (lines.length > todayIndex * 2 + 1 && todayIndex >= 0 && todayIndex < 5) {
-                        todayMenu = lines[todayIndex * 2 + 1];
-                    } else {
-                        todayMenu = "Weekend";
+                        Calendar calendar = Calendar.getInstance();
+                        int todayIndex = calendar.get(Calendar.DAY_OF_WEEK) - Calendar.MONDAY;
+                        int tomorrowIndex = (todayIndex + 1) % 7;
+
+                        Log.d("MyWidgetProvider", "Today: " + todayIndex + ", Tommorow: " + tomorrowIndex);
+
+                        if (lines.length > todayIndex * 2 + 1 && todayIndex >= 0 && todayIndex < 5)
+                        {
+                            todayMenu = lines[todayIndex * 2 + 1];
+                        } else
+                        {
+                            todayMenu = "Weekend";
+                        }
+
+                        if (lines.length > tomorrowIndex * 2 + 1 && tomorrowIndex >= 0 && tomorrowIndex < 5) {
+                            tomorrowMenu = lines[tomorrowIndex * 2 + 1];
+                        } else if (tomorrowIndex == 5 || tomorrowIndex == 6) {
+                            tomorrowMenu = "Weekend";
+                        } else if (tomorrowIndex == 0 && lines.length > 1) {
+                            System.out.println("Toorrow is a Monday");
+                            tomorrowMenu = lines[1]; // Edge case: Monday menu on Sundays
+                        } else {
+                            tomorrowMenu = "No menu available";
+                        }
                     }
-
-                    if (lines.length > tomorrowIndex * 2 + 1 && tomorrowIndex >= 0 && tomorrowIndex < 5) {
-                        tomorrowMenu = lines[tomorrowIndex * 2 + 1];
-                    } else if (tomorrowIndex == 5) {
-                        tomorrowMenu = "Weekend";
-                    } else if (tomorrowIndex == 6 && lines.length > 1) {
-                        tomorrowMenu = lines[1]; // Edge case: Monday menu on Sundays
-                    } else {
+                    else
+                    {
+                        todayMenu = "No menu available";
                         tomorrowMenu = "No menu available";
                     }
+                }
+                else
+                {
+                    todayMenu = "No menu available";
+                    tomorrowMenu = "No menu available";
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
+            Log.d("MyWidgetProvider", "Menu: " + todayMenu + " " + tomorrowMenu);
             return new String[]{todayMenu, tomorrowMenu};
         }
 
