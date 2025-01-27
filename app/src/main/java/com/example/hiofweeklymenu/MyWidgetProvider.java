@@ -5,12 +5,18 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.format.DateFormat;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.animation.Animation;
 import android.widget.RemoteViews;
 
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -27,7 +33,7 @@ public class MyWidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        Log.d("MyWidgetProvider", "onUpdate triggered for AppWidgetIds:");
+        //Log.d("MyWidgetProvider", "onUpdate triggered for AppWidgetIds:");
 
         for (int appWidgetId : appWidgetIds) {
             Intent intent = new Intent(context, MyWidgetProvider.class);
@@ -44,6 +50,7 @@ public class MyWidgetProvider extends AppWidgetProvider {
             views.setTextViewText(R.id.text_today_menu, "Press refresh to load menu");
             views.setTextViewText(R.id.text_tomorrow_menu, "Press refresh to load menu");
             views.setTextViewText(R.id.text_week_number, "Week: " + getWeekNumber());
+            views.setTextViewText(R.id.text_last_update, "");
 
             appWidgetManager.updateAppWidget(appWidgetId, views);
         }
@@ -74,7 +81,7 @@ public class MyWidgetProvider extends AppWidgetProvider {
 
         @Override
         public void run() {
-            Log.d("MyWidgetProvider", "Running");
+            //Log.d("MyWidgetProvider", "Running");
             String[] menus = fetchMenus();
             updateWidget(menus);
         }
@@ -107,13 +114,13 @@ public class MyWidgetProvider extends AppWidgetProvider {
                     if (startIndex != -1 && endIndex != -1) {
                         extractedText = extractedText.substring(startIndex, endIndex);
                         String[] lines = extractedText.split("\\n");
-                        Log.d("MyWidgetProvider", "LinesLength: " + extractedText.length() +"Lines: " + extractedText);
+                        //Log.d("MyWidgetProvider", "LinesLength: " + extractedText.length() +"Lines: " + extractedText);
 
                         Calendar calendar = Calendar.getInstance();
                         int todayIndex = calendar.get(Calendar.DAY_OF_WEEK) - Calendar.MONDAY;
                         int tomorrowIndex = (todayIndex + 1) % 7;
 
-                        Log.d("MyWidgetProvider", "Today: " + todayIndex + ", Tommorow: " + tomorrowIndex);
+                        //Log.d("MyWidgetProvider", "Today: " + todayIndex + ", Tommorow: " + tomorrowIndex);
 
                         if (lines.length > todayIndex * 2 + 1 && todayIndex >= 0 && todayIndex < 5)
                         {
@@ -128,7 +135,6 @@ public class MyWidgetProvider extends AppWidgetProvider {
                         } else if (tomorrowIndex == 5 || tomorrowIndex == 6) {
                             tomorrowMenu = "Weekend";
                         } else if (tomorrowIndex == 0 && lines.length > 1) {
-                            System.out.println("Toorrow is a Monday");
                             tomorrowMenu = lines[1]; // Edge case: Monday menu on Sundays
                         } else {
                             tomorrowMenu = "No menu available";
@@ -148,18 +154,45 @@ public class MyWidgetProvider extends AppWidgetProvider {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            Log.d("MyWidgetProvider", "Menu: " + todayMenu + " " + tomorrowMenu);
+            //Log.d("MyWidgetProvider", "Menu: " + todayMenu + " " + tomorrowMenu);
             return new String[]{todayMenu, tomorrowMenu};
         }
 
         private void updateWidget(String[] menus) {
-            Log.d("MyWidgetProvider", "Updating");
+            //Log.d("MyWidgetProvider", "Updating");
             RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
-            views.setTextViewText(R.id.text_today_menu, "Today's Menu: " + menus[0]);
-            views.setTextViewText(R.id.text_tomorrow_menu, "Tomorrow's Menu: " + menus[1]);
+
+            setMenu(views, R.id.text_today_menu, "Today: ", menus[0]);
+            setMenu(views, R.id.text_tomorrow_menu, "Tomorrow: ", menus[1]);
+            //views.setTextViewText(R.id.text_today_menu,  "Today: " + menus[0]);
+            //views.setTextViewText(R.id.text_tomorrow_menu, "Tomorrow: " + menus[1]);
+            views.setTextViewText(R.id.text_last_update, formatDateTime(Calendar.getInstance().getTime()));
 
             AppWidgetManager manager = AppWidgetManager.getInstance(context);
             manager.updateAppWidget(new android.content.ComponentName(context, MyWidgetProvider.class), views);
+        }
+
+        private String formatDateTime(Date date) {
+            // (e.g., "27/01, 20:16").
+            return DateFormat.format("dd/MM, HH:mm", date).toString();
+        }
+
+        private void setMenu(RemoteViews views, int id, String prefix, String menu) {
+            // 1. Create a SpannableStringBuilder.
+            SpannableStringBuilder builder = new SpannableStringBuilder();
+
+            // 2. Append the "Today: " or "Tomorrow: " prefix.
+            builder.append(prefix);
+
+            // 3. Apply bold style to the "Today: " text.
+            StyleSpan boldSpan = new StyleSpan(Typeface.BOLD);
+            builder.setSpan(boldSpan, 0, prefix.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+            // 4. Append the menu text.
+            builder.append(menu);
+
+            // 5. Set the text on the TextView.
+            views.setTextViewText(id, builder);
         }
     }
 }
