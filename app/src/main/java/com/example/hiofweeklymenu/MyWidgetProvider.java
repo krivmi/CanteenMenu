@@ -10,8 +10,7 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.format.DateFormat;
 import android.text.style.StyleSpan;
-import android.util.Log;
-import android.view.animation.Animation;
+//import android.util.Log;
 import android.widget.RemoteViews;
 
 import java.io.IOException;
@@ -23,9 +22,6 @@ import java.util.concurrent.Executors;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-
-import android.view.View;
-import android.view.animation.ScaleAnimation;
 
 public class MyWidgetProvider extends AppWidgetProvider {
 
@@ -69,7 +65,6 @@ public class MyWidgetProvider extends AppWidgetProvider {
             executor.execute(new FetchMenuTask(context));
             executor.shutdown();
         }
-
     }
 
     private static class FetchMenuTask implements Runnable {

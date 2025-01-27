@@ -2,9 +2,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#1F000000"
+    android:background="#4D2A2A2A"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:padding="10dp">
 
     <!-- Left vertical layout with week number, today's menu, and tomorrow's menu -->
     <LinearLayout
@@ -40,17 +40,18 @@
                 android:textSize="14sp" />
 
         </LinearLayout>
+
         <ImageButton
             android:id="@+id/button_refresh"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="center_vertical"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:background="@drawable/rounded_button"
             android:contentDescription="Refresh"
             android:src="@drawable/ic_refresh"
             app:tint="#FFFFFF" />
     </LinearLayout>
-
+    <!-- android:background="?android:attr/selectableItemBackgroundBorderless" -->
 
     <LinearLayout
         android:layout_width="match_parent"
