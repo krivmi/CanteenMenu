@@ -5,12 +5,15 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.format.DateFormat;
 import android.text.style.StyleSpan;
-//import android.util.Log;
+import android.util.Log;
+import android.widget.LinearLayout;
 import android.widget.RemoteViews;
 
 import java.io.IOException;
@@ -29,7 +32,7 @@ public class MyWidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        //Log.d("MyWidgetProvider", "onUpdate triggered for AppWidgetIds:");
+        Log.d("MyWidgetProvider", "onUpdate triggered for AppWidgetIds:");
 
         for (int appWidgetId : appWidgetIds) {
             Intent intent = new Intent(context, MyWidgetProvider.class);
@@ -47,6 +50,28 @@ public class MyWidgetProvider extends AppWidgetProvider {
             views.setTextViewText(R.id.text_tomorrow_menu, "Press refresh to load menu");
             views.setTextViewText(R.id.text_week_number, "Week: " + getWeekNumber());
             views.setTextViewText(R.id.text_last_update, "");
+
+            // set color
+            SharedPreferences prefs = context.getSharedPreferences(SettingsActivity.PREFS_NAME, Context.MODE_PRIVATE);
+            int canteen = prefs.getInt(SettingsActivity.KEY_CANTEEN_NAME, SettingsActivity.HALDEN);
+            int colorMode = prefs.getInt(SettingsActivity.KEY_COLOR_MODE, SettingsActivity.DARK);
+
+            Log.d("MyWidgetProvider", "canteen: " + canteen);
+            Log.d("MyWidgetProvider", "Color Mode: " + colorMode);
+
+            int backgroundColor, textColor;
+            if(colorMode == SettingsActivity.DARK) {
+                backgroundColor = context.getResources().getColor(R.color.widget_dark, null);
+                textColor = context.getResources().getColor(R.color.widget_dark_text, null);
+            } else {
+                backgroundColor = context.getResources().getColor(R.color.widget_light, null);
+                textColor = context.getResources().getColor(R.color.widget_light_text, null);
+            }
+            views.setInt(R.id.widget_layout, "setBackgroundColor", backgroundColor);
+            views.setTextColor(R.id.text_today_menu, textColor);
+            views.setTextColor(R.id.text_tomorrow_menu, textColor);
+            views.setTextColor(R.id.text_week_number, textColor);
+            views.setTextColor(R.id.text_last_update, textColor);
 
             appWidgetManager.updateAppWidget(appWidgetId, views);
         }
@@ -98,6 +123,8 @@ public class MyWidgetProvider extends AppWidgetProvider {
                 // Get the resulting text
                 String text = textWithLineBreaks.toString();
 
+                // TODO - set Canteen
+
                 int startIndex = text.indexOf("Halden");
                 int endIndex = text.indexOf("Fredrikstad", startIndex);
 
@@ -109,13 +136,13 @@ public class MyWidgetProvider extends AppWidgetProvider {
                     if (startIndex != -1 && endIndex != -1) {
                         extractedText = extractedText.substring(startIndex, endIndex);
                         String[] lines = extractedText.split("\\n");
-                        //Log.d("MyWidgetProvider", "LinesLength: " + extractedText.length() +"Lines: " + extractedText);
+                        Log.d("MyWidgetProvider", "LinesLength: " + extractedText.length() +"Lines: " + extractedText);
 
                         Calendar calendar = Calendar.getInstance();
                         int todayIndex = calendar.get(Calendar.DAY_OF_WEEK) - Calendar.MONDAY;
                         int tomorrowIndex = (todayIndex + 1) % 7;
 
-                        //Log.d("MyWidgetProvider", "Today: " + todayIndex + ", Tommorow: " + tomorrowIndex);
+                        Log.d("MyWidgetProvider", "Today: " + todayIndex + ", Tommorow: " + tomorrowIndex);
 
                         if (lines.length > todayIndex * 2 + 1 && todayIndex >= 0 && todayIndex < 5)
                         {
@@ -148,13 +175,14 @@ public class MyWidgetProvider extends AppWidgetProvider {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+                Log.d("MyWidgetProvider", e.toString());
             }
-            //Log.d("MyWidgetProvider", "Menu: " + todayMenu + " " + tomorrowMenu);
+            Log.d("MyWidgetProvider", "Menu: " + todayMenu + " " + tomorrowMenu);
             return new String[]{todayMenu, tomorrowMenu};
         }
 
         private void updateWidget(String[] menus) {
-            //Log.d("MyWidgetProvider", "Updating");
+            Log.d("MyWidgetProvider", "Updating");
             RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
 
             setMenu(views, R.id.text_today_menu, "Today: ", menus[0]);

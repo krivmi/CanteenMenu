@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
     <!-- Required permission for internet access -->
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -15,20 +14,26 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.HIOFWeeklyMenu"
         tools:targetApi="31">
-
+        <activity android:name=".SettingsActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <!-- Widget Receiver -->
         <receiver
             android:name=".MyWidgetProvider"
-            android:label="Weekly Menu Widget"
-            android:exported="true">
+            android:exported="true"
+            android:label="Weekly Menu Widget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
+
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_info" />
         </receiver>
-
     </application>
 
 </manifest>
