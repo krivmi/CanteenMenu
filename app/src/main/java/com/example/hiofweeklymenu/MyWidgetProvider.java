@@ -101,9 +101,10 @@ public class MyWidgetProvider extends AppWidgetProvider {
 
         @Override
         public void run() {
-            //Log.d("MyWidgetProvider", "Running");
             String[] menus = fetchMenus();
+            Logger.log(context, "Menus fetched: " + menus[0] + ", " + menus[1]);
             updateWidget(menus);
+            Logger.log(context, "Updated!");
         }
 
         private String[] fetchMenus() {
@@ -175,14 +176,12 @@ public class MyWidgetProvider extends AppWidgetProvider {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                Log.d("MyWidgetProvider", e.toString());
+                Logger.logError(context, "Description", e);
             }
-            Log.d("MyWidgetProvider", "Menu: " + todayMenu + " " + tomorrowMenu);
             return new String[]{todayMenu, tomorrowMenu};
         }
 
         private void updateWidget(String[] menus) {
-            Log.d("MyWidgetProvider", "Updating");
             RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
 
             setMenu(views, R.id.text_today_menu, "Today: ", menus[0]);
