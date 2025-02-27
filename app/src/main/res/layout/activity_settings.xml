@@ -85,7 +85,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:text="Note: Remember to restart the widget after changing the settings."
+        android:text="Note: Remember to re-add the widget after changing the settings."
         android:textAlignment="center"
         android:textColor="@color/gray"
         android:textSize="12sp" />
