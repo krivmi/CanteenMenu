@@ -77,7 +77,7 @@ public class MyWidgetProvider extends AppWidgetProvider {
         }
     }
 
-    private int getWeekNumber() {
+    private static int getWeekNumber() {
         Calendar calendar = Calendar.getInstance();
         return calendar.get(Calendar.WEEK_OF_YEAR);
     }
@@ -175,7 +175,7 @@ public class MyWidgetProvider extends AppWidgetProvider {
                     tomorrowMenu = "No menu available";
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
                 Logger.logError(context, "Description", e);
             }
             return new String[]{todayMenu, tomorrowMenu};
@@ -186,9 +186,9 @@ public class MyWidgetProvider extends AppWidgetProvider {
 
             setMenu(views, R.id.text_today_menu, "Today: ", menus[0]);
             setMenu(views, R.id.text_tomorrow_menu, "Tomorrow: ", menus[1]);
-            //views.setTextViewText(R.id.text_today_menu,  "Today: " + menus[0]);
-            //views.setTextViewText(R.id.text_tomorrow_menu, "Tomorrow: " + menus[1]);
+
             views.setTextViewText(R.id.text_last_update, formatDateTime(Calendar.getInstance().getTime()));
+            views.setTextViewText(R.id.text_week_number, "Week: " + getWeekNumber());
 
             AppWidgetManager manager = AppWidgetManager.getInstance(context);
             manager.updateAppWidget(new android.content.ComponentName(context, MyWidgetProvider.class), views);
